@@ -11,8 +11,10 @@ end
 ft_defaults
 
 %% read header
-res.hdr = ft_read_header(par.dataFiles{1});
+res.hdrInit = ft_read_header(par.dataFiles{1});
 res.grad = ft_read_sens(par.dataFiles{1},'filename',par.fileformat);
+
+%res.deadChannels = find(checkForDeadChannels(par.dataFiles{1}));
 
 % for each run
 for f = 1:length(par.dataRuns)
@@ -29,7 +31,7 @@ for f = 1:length(par.dataRuns)
         cfg.trialdef.ntrials     = Inf;
         cfg = ft_definetrial(cfg);
         res.continuous_data = ft_preprocessing(cfg);
-        res.continuous_data.label = res.hdr.label; %for some reason, the run-specific .sqds don't contain labels fields...
+        res.continuous_data.label = res.hdrInit.label; %for some reason, the run-specific .sqds don't contain labels fields...
     end
     
     %% filter timeseries
@@ -73,7 +75,20 @@ for f = 1:length(par.dataRuns)
     res = rmfield(res, 'continuous_data_hp');
     res = rmfield(res, 'continuous_data_bpf');
     
+    %% fix header
+    res.hdr = res.hdrInit;
+    res.hdr.Fs = res.continuous_data_bpf_rs.fsample;
+    res.hdr.label = res.continuous_data_bpf_rs.label;
+    res.hdr.chantype = res.hdr.chantype(par.idxMEGChan);
+    res.hdr.chanunit = res.hdr.chanunit(par.idxMEGChan);
+    res.hdr.nSamples = size(res.continuous_data_bpf_rs.trial{1},2);
+    res.hdr.nChans = size(res.continuous_data_bpf_rs.trial{1},1);
+        
     %% save data
-    save (fullfile(par.preprocRunsDir, [thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_filt.mat']), 'res');
+    %save (fullfile(par.preprocRunsDir, [thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_filt.mat']), 'res');
     
+    thisFile = fullfile(par.preprocRunsDir,[thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_filt.mat']);
+    
+    ft_write_data(thisFile, res.continuous_data_bpf_rs.trial{1}, 'header', res.hdr, 'dataformat', 'fcdc_matbin');
+    ft_write_event(thisFile, res.event)
 end

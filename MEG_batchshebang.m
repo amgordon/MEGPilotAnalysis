@@ -6,7 +6,5 @@ end
 
 for s=1:length(sa)
     par = MEG_par(sa(s));
-    MEG_wholeshebang(par, 's');
-    par = MEG_par(sa(s));
     MEG_wholeshebang(par, 'p');
 end

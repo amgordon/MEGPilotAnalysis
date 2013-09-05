@@ -3,7 +3,15 @@ function [trl, event] = detectTriggersAcrossChannels(cfg)
 % read the header information and the events from the data
 % hdr   = ft_read_header(cfg.dataset);
 
-event = ft_read_event(cfg.dataset,'trigindx', cfg.trialdef.trigChannels,'threshold',3,'detectflank','down');
+if isfield(cfg, 'dataset')
+    data = cfg.dataset;
+elseif isfield(cfg, 'datafile')
+    data = cfg.datafile;
+else
+    error('no recognized data file')
+end
+
+event = ft_read_event(data,'trigindx', cfg.trialdef.trigChannels,'threshold',3,'detectflank','down');
 
 
 pretrig = -1*cfg.trialdef.prestim;
