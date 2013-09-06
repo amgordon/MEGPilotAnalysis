@@ -92,7 +92,7 @@ par.doHPFilt = 'yes';
 % also note that epochs have been prepadded with
 % par.nPretriggerSamplesForRun during the MEG_splitSqdIntoRuns script.
 
-par.trialDefPreStim = -40; 
+par.trialDefPreStim = 40; 
 par.trialDefPostStim = 400;
 
 %%

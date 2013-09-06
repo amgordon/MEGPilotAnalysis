@@ -64,8 +64,8 @@ for f = 1:length(par.dataRuns)
     cfg.trialfun = par.trialFun;
     
     cfg.continuous = par.continuous;
-    cfg.trialdef.prestim = par.trialDefPreStim;
-    cfg.trialdef.poststim = par.trialDefPostStim;
+    cfg.trialdef.prestim = 0;
+    cfg.trialdef.poststim = 0;
     
     cfg = ft_definetrial(cfg);
     res.event = cfg.event;        

@@ -6,7 +6,7 @@ function [ output_args ] = MEG_preprocess_acrossRun(par, flags)
 %   Adapted from scripts by Andy Heusser, NYU
 
 if (nargin<2)
-    flags = 'tai';
+    flags = 'tami';
 end
 
 %concatData = load(par.dataConcat);
@@ -49,73 +49,20 @@ end
 
 cfgOrig = cfg;
 
-%% identify jump artifacts
-if ismember('a', flags)
-    % channel selection, cutoff and padding
-    cfg.artfctdef.zvalue.channel    = 'MEG';
-    cfg.artfctdef.zvalue.cutoff     = 20;
-    cfg.artfctdef.zvalue.trlpadding = 0;
-    cfg.artfctdef.zvalue.artpadding = 0;
-    cfg.artfctdef.zvalue.fltpadding = 0;
+
     
-    % algorithmic parameters
-    cfg.artfctdef.zvalue.cumulative    = 'yes';
-    cfg.artfctdef.zvalue.medianfilter  = 'yes';
-    cfg.artfctdef.zvalue.medianfiltord = 9;
-    cfg.artfctdef.zvalue.absdiff       = 'yes';
-    
-    % make the process interactive
-    cfg.artfctdef.zvalue.interactive = 'yes';
-    
-    [~, art.jump] = ft_artifact_zvalue(cfg);
-    
-    %% identify muscle artifacts
-    
-    cfg = cfgOrig;
-    
-    % channel selection, cutoff and padding
-    cfg.artfctdef.zvalue.channel = 'MEG';
-    cfg.artfctdef.zvalue.cutoff      = 4;
-    cfg.artfctdef.zvalue.trlpadding  = 0;
-    cfg.artfctdef.zvalue.fltpadding  = 0;
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
-    
-    % algorithmic parameters
-    cfg.artfctdef.zvalue.bpfilter    = 'yes';
-    cfg.artfctdef.zvalue.bpfreq      = [60 90];
-    cfg.artfctdef.zvalue.bpfiltord   = 9;
-    cfg.artfctdef.zvalue.bpfilttype  = 'but';
-    cfg.artfctdef.zvalue.hilbert     = 'yes';
-    cfg.artfctdef.zvalue.boxcar      = 0.2;
-    
-    % make the process interactive
-    cfg.artfctdef.zvalue.interactive = 'yes';
-    
-    [~, art.muscle] = ft_artifact_zvalue(cfg);
-    
-    %% manually identify bad trials
-    
+%% manually identify bad trials
+ 
+if ismember('m', flags)
     cfg          = [];
     cfg.method   = 'summary';
     cfg.alim     = 1e-12;
     cfg.megscale = 1;
     cfg.eogscale = 5e-8;
-    dummy        = ft_rejectvisual(cfg,res.data_epochs);
+    preprocData        = ft_rejectvisual(cfg,res.data_epochs);
     
-    rejectVisual_h = setdiff(1:length(cfgOrig.trl), dummy.trialinfo);
-    art.rejectVisual = cfgOrig.trl(rejectVisual_h,1:2);
-    
-    clear dummy;
-    
-    %% reject all artifacts
-    cfg = cfgOrig;
-    cfg.artfctdef.zvalue.artifact = vertcat(art.jump, art.muscle, art.rejectVisual);
-    
-    [res.data_epochs_ar] = ft_rejectartifact(cfg, res.data_epochs);
-    
-    preprocData = res.data_epochs_ar;
-    %idx.goodTrials = ismember(cfgOrig.trl(:,1), res.data_epochs_ar.cfg.trl(:,1));
 end
+
 
 %% calculate components
 if ismember('o', flags)
