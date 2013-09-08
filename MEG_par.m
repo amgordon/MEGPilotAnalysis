@@ -30,12 +30,23 @@ switch substr
         par.componentsToPlot = 1:25;
         par.artComponents = [1,4,20];        
         par.componentsToRemove = [];
+        par.badTrials = [164 368 437 583 877 878 879 880];
     case 'meg_082013'
         par.dataFiles{1} = fullfile(par.rawDir, 'R0504_MEGclass_8.20.13.sqd');
+        par.nCycles = 20;
+        par.componentsToPlot = 1:25;
+        par.artComponents = [1,4,20];        
+        par.componentsToRemove = [];
+        par.badTrials = [];
     case 'meg_082113'
         par.dataFiles{1} = fullfile(par.rawDir, 'R0487_MEGclassblock1_8.21.13.sqd');
         par.dataFiles{2} = fullfile(par.rawDir, 'R0487_MEGclassblock2_8.21.13.sqd');
         par.dataFiles{3} = fullfile(par.rawDir, 'R0487_MEGclassblock3_8.21.13.sqd');
+        par.componentsToPlot = 1:25;
+        par.artComponents = [1,4,20];
+        par.componentsToRemove = [];
+        par.nCycles = 25;
+        par.badTrials = [];
     otherwise
         error('unrecognized subject');
 end
@@ -43,7 +54,7 @@ end
 
 %% data runs
 dr = dir(fullfile(par.runsDir, 'MEGDat*sqd'));
-drp = dir(fullfile(par.preprocRunsDir, 'MEGDat*HP1*LP30*mat'));
+drp = dir(fullfile(par.preprocRunsDir, 'MEGDat*HP1*LP30*epochs.mat'));
 drpc = dir(fullfile(par.concatRunsDir, 'MEGDat*.mat'));
 drpca = dir(fullfile(par.concatRunsDir, 'MEGDat*artRemoved.mat'));
 
@@ -59,8 +70,9 @@ end
 
 par.dataConcat = fullfile(par.concatRunsDir, drpc(1).name);
 par.headerFile = fullfile(par.headerDir, 'hdr.mat');
-par.dataConcatNoArt = fullfile(par.concatRunsDir, drpca(1).name);
-
+if length(drpca)>0
+    par.dataConcatNoArt = fullfile(par.concatRunsDir, drpca(1).name);
+end
 par.behavFile = fullfile(par.behavDir, b(1).name);
 
 %%
@@ -92,6 +104,8 @@ par.doHPFilt = 'yes';
 % also note that epochs have been prepadded with
 % par.nPretriggerSamplesForRun during the MEG_splitSqdIntoRuns script.
 
+par.preStimOrigSamples = 199;
+par.postStimOrigSamples = 2000;
 par.trialDefPreStim = 40; 
 par.trialDefPostStim = 400;
 

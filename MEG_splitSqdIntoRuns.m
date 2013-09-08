@@ -19,7 +19,7 @@ for i = 1:length(par.dataFiles)
     
     
     %% sqd-specifc info
-    if strcmp(thisDataName, 'R0487_MEGclassblock2_8.21.13.sqd')
+    if strcmp(thisDataName, 'R0487_MEGclassblock2_8.21.13')
         nSqdsAlreadyWritten = 12;
         nTrialsAlreadyWritten = 144;
     elseif strcmp(thisDataName, 'R0487_MEGclassblock3_8.21.13')
@@ -50,11 +50,11 @@ for i = 1:length(par.dataFiles)
     idx.taskCode = task_code_h; % 1 for Study1, 2 for Study2, 3 for Test.
     
     % for each miniblock of each task
-    for i=1:length(idx.triggerFirstInMiniBlock)
+    for j=1:length(idx.triggerFirstInMiniBlock)
         clear trigList
-        trigList{1} = idx.triggerFirstInMiniBlock(i);
+        trigList{1} = idx.triggerFirstInMiniBlock(j);
         nPretriggerSamples = par.nPretriggerSamplesForRun;
-        nPosttriggerSamples = idx.triggerLastInMiniBlock(i)  - idx.triggerFirstInMiniBlock(i) + taskTrialDur(idx.taskCode(i));
+        nPosttriggerSamples = idx.triggerLastInMiniBlock(j)  - idx.triggerFirstInMiniBlock(j) + taskTrialDur(idx.taskCode(j));
         outputFilenameRoot = strrep(thisDataFile,'.sqd','.epoch.mat');
         epochAvgFlag = 'epoch';
         
@@ -65,8 +65,8 @@ for i = 1:length(par.dataFiles)
         y = load(epochFiles{1});
         
         % write out the new .sqd file
-        thisTask = tasks{idx.taskCode(i)};
-        thisNum = ceil((i+nSqdsAlreadyWritten)/3);
+        thisTask = tasks{idx.taskCode(j)};
+        thisNum = ceil((j+nSqdsAlreadyWritten)/3);
         thisSqd = fullfile(par.runsDir, ['MEGDat' '_' thisTask '_' prepend(thisNum) '.sqd']);
         
         % delete previous versions of the file, otherwise sqdwrite will want to
@@ -75,6 +75,7 @@ for i = 1:length(par.dataFiles)
             delete(thisSqd)
         end
         
+        disp(['writing ' thisSqd])
         sqdwrite(thisDataFile, thisSqd, y.data)
     end
 end
