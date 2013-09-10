@@ -34,7 +34,11 @@ else
 end
 
 yPred = nan(size(Y));
-yProb = nan(size(Y));
+if length(YSet)==2
+    yProb = nan(size(Y'));
+else
+    yProb = nan(size(Y,2), length(YSet));
+end
 
 idxAllTrain = (cv_tr>0);
 
@@ -59,14 +63,16 @@ for l = 1:length(lambda)
         %feature selection based on mutual information
         mi = nan(size(XTrain,2),1);
         if S.FS
-            for t = 1:size(XTrain,2)
-                mi(t) = mutualinfo(YTrain, XTrain(:,t));
+            if size(XTrain,2)>S.nFeats
+                for t = 1:size(XTrain,2)
+                    mi(t) = mutualinfo(YTrain, XTrain(:,t));
+                end
+                
+                mi_sorted = sort(mi, 'descend');
+                thresh = mi_sorted(S.nFeats);
+                XTrain = XTrain(:,mi>=thresh);
+                XTest = XTest(:,mi>=thresh);
             end
-            
-            mi_sorted = sort(mi, 'descend');
-            thresh = mi_sorted(S.nFeats);
-            XTrain = XTrain(:,mi>=thresh);
-            XTest = XTest(:,mi>=thresh);
         end
         
         if strcmp(classifier, 'svr')
@@ -82,7 +88,7 @@ for l = 1:length(lambda)
         elseif strcmp(classifier, 'liblinear')
             trainOpts = [S.trainOptsLibLinear thisLStr];
             model = train(YTrain', XTrain, trainOpts);
-            [yPred(idxTE),~,yProb(idxTE)] = predict(YTest', XTest, model);
+            [yPred(idxTE),~,yProb(idxTE,:)] = predict(YTest', XTest, model);
         elseif strcmp(classifier, 'glmnet')
             
             % options

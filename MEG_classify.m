@@ -31,51 +31,19 @@ res.data_epochs.trialinfo = (1:length(res.data_epochs.trial))';
 res.layout = ft_prepare_layout(cfg);
 
 %MEGDat = load(par.dataConcatNoArt);
-behavDat = load(par.behavFile);
 
-nTrialsPerTask = par.miniBlockLength * par.nCycles;
-idx.study1 = [true(1, par.miniBlockLength * par.nCycles), false(1, 2*par.miniBlockLength * par.nCycles)];
-idx.study2 = [false(1, par.miniBlockLength * par.nCycles), true(1, par.miniBlockLength * par.nCycles), false(1, par.miniBlockLength * par.nCycles)];
-idx.test = [false(1, 2*par.miniBlockLength * par.nCycles), true(1, par.miniBlockLength * par.nCycles)];
+idxB = MEG_behav_analysis(par);
 
-
-for i=1:length(behavDat.theData.Test.conID);
-    
-    switch behavDat.theData.Study1.conID{i}(1)
-        case 'F'
-            study1Cond(i) = 1;
-        case 'S'
-            study1Cond(i) = 2;
-        case 'O'
-            study1Cond(i) = 3;
-    end
-    
-    
-    switch behavDat.theData.Study2.conID{i}(1)
-        case 'F'
-            study2Cond(i) = 1;
-        case 'S'
-            study2Cond(i) = 2;
-        case 'O'
-            study2Cond(i) = 3;
-    end
-    
-    switch behavDat.theData.Test.conID{i}(1)
-        case 'F'
-            testCond(i) = 1;
-        case 'S'
-            testCond(i) = 2;
-        case 'O'
-            testCond(i) = 3;
-    end
-    
-end
-idx.cond = [study1Cond(1:nTrialsPerTask) study2Cond(1:nTrialsPerTask) testCond(1:nTrialsPerTask)];
+idx.cond = [idxB.study1.cond idxB.study2.cond idxB.test.cond];
 
 idx.goodTrials = true(size(idx.cond));
 idx.goodTrials(par.badTrials) = false;
-% idx.goodTrial(MEGDat.preprocData.trialinfo) = true;
 
+idx.study = [true(size(idxB.study1.cond)) true(size(idxB.study2.cond)) false(size(idxB.test.cond))];
+idx.test = ~idx.study;
+
+idx.remember = false(size(idx.test));
+idx.remember(idx.test) = idxB.test.remember;
 %%
 par.timePointsForClassification = 4:13;
 par.classificationFs = 10;
@@ -112,58 +80,70 @@ ft_multiplotER(cfg, avgRespFaces, avgRespScenes);
 
 S.nXvals = 10;
 S.balanceTrainingSet = false;
-S.FS = false;
+S.FS = true;
 S.nFeats = 1000;
 S.trainOptsLibLinear = '-s 0 -B 1 -q -c ';  
-S.ValidationLambda = .01;
+S.ValidationLambda = [.1];
 
 %% reshape the data matrix
 X_h1 = cat(3,res.continuous_data_bpf_rs.trial{:});
 
 X_h2 = X_h1(:,par.timePointsForClassification,:);
 
-X = reshape(X_h2, [size(X_h2,1)*size(X_h2,2), size(X_h2,3)]);
-sparseX = 10^14 * sparse(X)';
+X = 10^14 * reshape(X_h2, [size(X_h2,1)*size(X_h2,2), size(X_h2,3)]);
+sparseX = sparse(X)';
 
 
-%% classify study vs. test
-idx.study1AndTest = (~idx.study2) & idx.goodTrials;
-cond = idx.study1 - idx.test;
-
-results.classifyStudyVsTest = MEG_x_validation(sparseX(idx.study1AndTest,:),cond(idx.study1AndTest),S,S.ValidationLambda,'discrete', 'liblinear');
-
-%% classify one timepoint vs. another
-t1 = squeeze(X_h2(:,10,:));
-t2 = squeeze(X_h2(:,1,:));
-
-idx.notNan = [idx.goodTrials&idx.study1 idx.goodTrials&idx.study1];
-
-sparseT = 10^14 * sparse(horzcat(t1,t2))';
-idxT1vsT2 = [ones(1,900), -1*ones(1,900)];
-
-results.oneTimepointVsAnother = MEG_x_validation(sparseT(idx.notNan,:),idxT1vsT2(idx.notNan),S,S.ValidationLambda,'discrete', 'liblinear');
+% %% classify study vs. test
+cond = idx.study - idx.test; 
+results.classifyStudyVsTest = MEG_x_validation(sparseX(idx.goodTrials,:),cond(idx.goodTrials),S,S.ValidationLambda,'discrete', 'liblinear');
+ 
 
 %% classify face vs. house viewing
-idx.faceVsHouseSt1 = (idx.cond<3) & idx.study1 & idx.goodTrials;
-cond = (2*idx.cond)-3;
+idx.faceVsHouseSt1 =  idx.study & idx.goodTrials;
+cond = idx.cond;
 
 results.classifyFaceVsHouseStudy1 = MEG_x_validation(sparseX(idx.faceVsHouseSt1,:),cond(idx.faceVsHouseSt1),S,S.ValidationLambda,'discrete', 'liblinear');
 
 
 %% classify face vs. house remembering
-idx.faceVsHouseSt1 = (idx.cond<3) & idx.test & idx.goodTrials;
-cond = (2*idx.cond)-3;
+idx.faceVsHouseSt1 =  idx.remember & idx.goodTrials;
+cond = idx.cond;
 
 results.classifyFaceVsHouseTest = MEG_x_validation(sparseX(idx.faceVsHouseSt1,:),cond(idx.faceVsHouseSt1),S,S.ValidationLambda,'discrete', 'liblinear');
 
 
 %% train on face vs. house viewing, test on face vs. house remembering
-idx.faceVsHouseTrain = (idx.cond<3) & idx.goodTrials & ~idx.test;
-idx.faceVsHouseTest = (idx.cond<3) & idx.goodTrials & idx.test;
-cond = (2*idx.cond)-3;
+idx.faceVsHouseTrain =  idx.goodTrials & ~idx.test;
+idx.faceVsHouseTest =  idx.goodTrials & idx.test;
+cond = idx.cond;
 
-model = train(cond(idx.faceVsHouseTrain)', sparseX(idx.faceVsHouseTrain,:), '-s 0 -B 1 -q -c 1');
-[YP, X0E, results.trainOnStudyTestOnTest] = predict(cond(idx.faceVsHouseTest)', sparseX(idx.faceVsHouseTest,:), model);
+model = train(cond(idx.faceVsHouseTrain)', sparseX(idx.faceVsHouseTrain,:), '-s 0 -B 1 -q -c .0001');
+[results.trainOnStudyTestOnTest] = predict(cond(idx.faceVsHouseTest)', sparseX(idx.faceVsHouseTest,:), model);
+
+%% class-specific RSA analyses
+
+    idx.faceTrain =  idx.goodTrials & ~idx.test & (idx.cond==1);
+    idx.faceTest =  idx.goodTrials & idx.test & (idx.cond==1);
+    idx.houseTrain =  idx.goodTrials & ~idx.test & (idx.cond==2);
+    idx.houseTest =  idx.goodTrials & idx.test & (idx.cond==2);
+    
+for i=1:size(X_h2,2)
+    [rFF(i,:,:)] = corr(squeeze(X_h2(:,i,idx.faceTrain)), squeeze(X_h2(:,i,idx.faceTest)));
+    [rHH(i,:,:)] = corr(squeeze(X_h2(:,i,idx.houseTest)), squeeze(X_h2(:,i,idx.houseTest)));
+    [rFH(i,:,:)] = corr(squeeze(X_h2(:,i,idx.faceTrain)), squeeze(X_h2(:,i,idx.houseTest)));
+    [rHF(i,:,:)] = corr(squeeze(X_h2(:,i,idx.houseTest)), squeeze(X_h2(:,i,idx.faceTest)));
 end
 
+rFFM = squeeze(max(rFF));
+rHHM = squeeze(max(rHH));
+rFHM = squeeze(max(rFH));
+rHFM = squeeze(max(rHF));
+
+%% stim-specific RSA analysis
+
+
+
+
+end
 
