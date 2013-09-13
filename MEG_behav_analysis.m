@@ -23,9 +23,9 @@ idx.study1.image = behavDat.theData.Study1.image(idx.trialNum);
 idx.study2.image = behavDat.theData.Study2.image(idx.trialNum);
 idx.test.image = behavDat.theData.Test.image(idx.trialNum);
 
-idx.study1.miniblock = behavDat.theData.Study1.miniblock(idx.trialNum);
-idx.study2.miniblock = behavDat.theData.Study2.miniblock(idx.trialNum);
-idx.test.miniblock = behavDat.theData.Test.miniblock(idx.trialNum);
+idx.study1.miniblock = [behavDat.theData.Study1.miniblock{idx.trialNum}];
+idx.study2.miniblock = [behavDat.theData.Study2.miniblock{idx.trialNum}];
+idx.test.miniblock = [behavDat.theData.Test.miniblock{idx.trialNum}];
 
 idx.study1.trialOnset = behavDat.theData.Study1.trialOnset(idx.trialNum);
 idx.study2.trialOnset = behavDat.theData.Study2.trialOnset(idx.trialNum);

@@ -14,6 +14,7 @@ ft_defaults
 res.hdrInit = ft_read_header(par.dataFiles{1});
 res.grad = ft_read_sens(par.dataFiles{1},'filename',par.fileformat);
 
+idx = MEG_behav_analysis(par);
 %res.deadChannels = find(checkForDeadChannels(par.dataFiles{1}));
 
 % for each run
@@ -61,8 +62,9 @@ for f = 1:length(par.dataRuns)
     cfg.trialfun = par.trialFun;
     
     cfg.continuous = par.continuous;
-    cfg.trialdef.prestim = 200;
-    cfg.trialdef.poststim = 2000;
+    cfg.trialdef.prestim = par.preStimOrigSamples;
+    cfg.trialdef.poststim = par.postStimOrigSamples;
+    cfg.RT = par.acquisitionRate * idx.test.RT(idx.test.miniblock==f);
     
     cfg = ft_definetrial(cfg);
     res.event = cfg.event;        
@@ -71,7 +73,7 @@ for f = 1:length(par.dataRuns)
     res.continuous_data_bpf_all = res.continuous_data;
     res.continuous_data_bpf_all.trial{1}(par.idxMEGChan,:) = res.continuous_data_bpf.trial{1};
     
-    thisFile = fullfile(par.preprocRunsDir,[thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_all_filt.mat']);
+    thisFile = fullfile(par.preprocRunsDir,[thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_all_filt_RTLockedEvents.mat']);
     
     ft_write_data(thisFile, res.continuous_data_bpf_all.trial{1}, 'header', res.hdrInit, 'dataformat', 'fcdc_matbin');
     ft_write_event(thisFile, res.event)
@@ -86,6 +88,7 @@ for f = 1:length(par.dataRuns)
     cfg.continuous = par.continuous;
     cfg.trialdef.prestim = par.preStimOrigSamples;
     cfg.trialdef.poststim = par.postStimOrigSamples;
+    cfg.RT = par.acquisitionRate * idx.test.RT(idx.test.miniblock==f);
     
     cfg = ft_definetrial(cfg);
     res.data_epochs = ft_preprocessing(cfg);
@@ -96,7 +99,6 @@ for f = 1:length(par.dataRuns)
     cfg.resamplefs = par.resampleRate;
     res.data_epochs = ft_resampledata(cfg, res.data_epochs);
     
-
     %% discard unwanted data
     res = rmfield(res, 'continuous_data');
     res = rmfield(res, 'continuous_data_hp');
@@ -113,6 +115,6 @@ for f = 1:length(par.dataRuns)
     res.hdr.nChans = size(res.data_epochs.trial{1},1);
         
     %% save data    
-    thisFile = fullfile(par.preprocRunsDir,[thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_filt_epochs.mat']);
+    thisFile = fullfile(par.preprocRunsDir,[thisRunName, '_HP' num2str(par.HPFreq) '_LP' num2str(par.LPFreq) '_filt_epochs_RTLock.mat']);
     save(thisFile, 'res')
 end

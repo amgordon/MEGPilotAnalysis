@@ -87,8 +87,8 @@ for l = 1:length(lambda)
             yPred(idxTE) = [ones(size(XTest,1),1) XTest]*b;
         elseif strcmp(classifier, 'liblinear')
             trainOpts = [S.trainOptsLibLinear thisLStr];
-            model = train(YTrain', XTrain, trainOpts);
-            [yPred(idxTE),~,yProb(idxTE,:)] = predict(YTest', XTest, model);
+            model = train(YTrain, XTrain, trainOpts);
+            [yPred(idxTE),~,yProb(:,idxTE)] = predict(YTest, XTest, model);
         elseif strcmp(classifier, 'glmnet')
             
             % options
@@ -131,7 +131,7 @@ for l = 1:length(lambda)
     if strcmp(classifier, 'svr')
         model = svm_train(YTrain, XTrain, trainOpts);
     elseif strcmp(classifier, 'liblinear')
-        model = train(Y', X, trainOpts);
+        model = train(Y, X, trainOpts);
     elseif strcmp(classifier, 'glmnet')
         
         glmnetoptions = glmnetSet();

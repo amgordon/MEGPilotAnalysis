@@ -30,7 +30,7 @@ switch substr
         par.componentsToPlot = 1:25;
         par.artComponents = [1,4,20];        
         par.componentsToRemove = [];
-        par.badTrials = [164 368 437 583 877 878 879 880];
+        par.badTrials = [164 368 437 583 648 877 878 879 880];
     case 'meg_082013'
         par.dataFiles{1} = fullfile(par.rawDir, 'R0504_MEGclass_8.20.13.sqd');
         par.nCycles = 20;
@@ -53,8 +53,11 @@ end
 
 
 %% data runs
-dr = dir(fullfile(par.runsDir, 'MEGDat*sqd'));
+dr = dir(fullfile(par.runsDir, 'MEGDat*Test*sqd'));
 drp = dir(fullfile(par.preprocRunsDir, 'MEGDat*HP1*LP30*epochs.mat'));
+drps = dir(fullfile(par.preprocRunsDir, 'MEGDat*Study*HP1*LP30*epochs.mat'));
+%drpt = dir(fullfile(par.preprocRunsDir, 'MEGDat*Test*HP1*LP30*epochs_RTLock.mat'));
+drpt = dir(fullfile(par.preprocRunsDir, 'MEGDat*Test*HP1*LP30*epochs.mat'));
 drpc = dir(fullfile(par.concatRunsDir, 'MEGDat*.mat'));
 drpca = dir(fullfile(par.concatRunsDir, 'MEGDat*artRemoved.mat'));
 
@@ -66,6 +69,14 @@ end
 
 for i=1:length(drp)
    par.dataRunsPreproc{i} = fullfile(par.preprocRunsDir, drp(i).name); 
+end
+
+for i=1:length(drps)
+   par.dataRunsPreprocStudy{i} = fullfile(par.preprocRunsDir, drps(i).name); 
+end
+
+for i=1:length(drpt)
+   par.dataRunsPreprocTest{i} = fullfile(par.preprocRunsDir, drpt(i).name); 
 end
 
 par.dataConcat = fullfile(par.concatRunsDir, drpc(1).name);
@@ -104,8 +115,8 @@ par.doHPFilt = 'yes';
 % also note that epochs have been prepadded with
 % par.nPretriggerSamplesForRun during the MEG_splitSqdIntoRuns script.
 
-par.preStimOrigSamples = 199;
-par.postStimOrigSamples = 2000;
+par.preStimOrigSamples = 999;
+par.postStimOrigSamples = 500;
 par.trialDefPreStim = 40; 
 par.trialDefPostStim = 400;
 
@@ -119,7 +130,7 @@ par.refChannels = {'RM158' 'RM159' ' RM160'};
 
 
 
-par.trialFun = 'detectTriggersAcrossChannels';
+par.trialFun = 'detectTriggersAcrossChannels_RTLock';
 par.continuous = 'yes';
 
 
