@@ -35,6 +35,16 @@ idx.test.remember = logical(behavDat.theData.Test.remember);
 idx.test.forgot = logical(behavDat.theData.Test.forgot);
 idx.test.RT = behavDat.theData.Test.RT;
 
+for i=1:length(idx.study1.word)
+    thisWordIdxTest = (strcmp(idx.study1.word(i), idx.test.word));
+    idx.study1.SM(i) = idx.test.remember(thisWordIdxTest);    
+end
+
+for i=1:length(idx.study2.word)
+    thisWordIdxTest = (strcmp(idx.study2.word(i), idx.test.word));
+    idx.study2.SM(i) = idx.test.remember(thisWordIdxTest);    
+end
+
 end
 
 

@@ -35,7 +35,7 @@ end
 
 yPred = nan(size(Y));
 if length(YSet)==2
-    yProb = nan(size(Y'));
+    yProb = nan(size(Y));
 else
     yProb = nan(size(Y,2), length(YSet));
 end
@@ -88,7 +88,7 @@ for l = 1:length(lambda)
         elseif strcmp(classifier, 'liblinear')
             trainOpts = [S.trainOptsLibLinear thisLStr];
             model = train(YTrain, XTrain, trainOpts);
-            [yPred(idxTE),~,yProb(:,idxTE)] = predict(YTest, XTest, model);
+            [yPred(idxTE),~,yProb(idxTE,:)] = predict(YTest, XTest, model);
         elseif strcmp(classifier, 'glmnet')
             
             % options

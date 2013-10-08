@@ -71,12 +71,12 @@ for i = 1:length(par.dataFiles)
         
         % delete previous versions of the file, otherwise sqdwrite will want to
         % append to them.
-        if exist(thisSqd, 'file')
-            delete(thisSqd)
-        end
+        %if exist(thisSqd, 'file')
+        %    delete(thisSqd)
+        %end
         
-        disp(['writing ' thisSqd])
-        sqdwrite(thisDataFile, thisSqd, y.data)
+        %disp(['writing ' thisSqd])
+        %sqdwrite(thisDataFile, thisSqd, y.data)
     end
 end
 end

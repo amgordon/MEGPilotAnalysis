@@ -6,6 +6,9 @@ end
 
 for s=1:length(sa)
     par = MEG_par(sa(s));
-    [res{s} idx{s}] = MEG_classify(par);
+    %MEG_preprocessing_byRun2(par);
+%     par = MEG_par(sa(s));
+    %MEG_preprocessing_FreqDecomp(par);
     %MEG_wholeshebang(par, 'spc');
+    [res{s}, idx{s}] = MEG_classify(par);
 end
