@@ -1,8 +1,6 @@
 function [] = MEG_concatenatePreprocessedRuns(par)
-
 % Given a set of filtered miniblocks, concatenate the data and events back
 % into a single timeseries.
-
 
 nPreviousSamples = 0;
 ix = 0;

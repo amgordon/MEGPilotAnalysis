@@ -1,4 +1,5 @@
 function [out] = MEG_x_validation(X,Y,S,lambda,predictionType,classifier)
+% cross validation classification of MEG data.
 
 YSet = unique(Y);
  

@@ -1,9 +1,5 @@
 function res = MEG_preprocessing_FreqDecomp(par)
-%%   MEG_preprocessing_byRun
-%   Preprocess runs of MEG data using mainly fieldtrip routines
-%   Alan Gordon, Stanford University, 08/19/2013
-%   Adapted from scripts by Andy Heusser, NYU
-
+% Decompose data into spectral components.
 
 ft_defaults
 

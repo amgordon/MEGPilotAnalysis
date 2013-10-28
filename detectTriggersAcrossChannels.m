@@ -1,7 +1,5 @@
 function [trl, event] = detectTriggersAcrossChannels(cfg)
- 
-% read the header information and the events from the data
-% hdr   = ft_read_header(cfg.dataset);
+% read events from the data
 
 if isfield(cfg, 'dataset')
     data = cfg.dataset;

@@ -1,7 +1,5 @@
 function [trl, event] = detectTriggersAcrossChannels_RTLock(cfg)
- 
-% read the header information and the events from the data
-% hdr   = ft_read_header(cfg.dataset);
+% read events in data, locked to RT.
 
 if isfield(cfg, 'dataset')
     data = cfg.dataset;

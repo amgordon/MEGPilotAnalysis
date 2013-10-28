@@ -1,7 +1,5 @@
 function [results, idx] = MEG_classify(par)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-
+% classify MEG data
 
 ft_defaults
 
@@ -263,8 +261,6 @@ figure; ft_multiplotER(cfg, avgRespTestRT1, avgRespTestRT3);
 %   end
 
 %% classify timepoints
-
-
 
 for i=1:20
     for j=1:20

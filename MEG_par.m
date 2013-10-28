@@ -1,4 +1,5 @@
 function par = MEG_par(substr)
+% creates subject-specific parameter information.
 
 %% reading in input
 if isnumeric(substr) 
@@ -136,8 +137,8 @@ par.doHPFilt = 'yes';
 
 %% event-related analysis
 % in samples where Fs = par.resampleRate
-
-% also note that epochs have been prepadded with
+%
+% note that epochs have been prepadded with
 % par.nPretriggerSamplesForRun during the MEG_splitSqdIntoRuns script.
 
 par.preStimOrigSamples = 200;
@@ -154,7 +155,7 @@ par.FreqEpochWindow = .05;
 par.foi = 2:2:30;
 par.t_ftimwin    = ones(length(par.foi),1).*0.5; 
 
-%%
+%% miscellaneous params
 par.fileformat = 'besa_pos';
 par.neighborCalcMethod = 'triangulation';
 par.neighborfeedback = 'no';

@@ -1,4 +1,5 @@
 function [sub] = MEG_num2Sub(num)
+% convert subject label to a subject number
 
 switch num
     case 1

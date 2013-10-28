@@ -1,4 +1,5 @@
 function [  ] = addMEG( )
+% add directories relevant to MEG to path.
 
 addpath(genpath('/biac4/wagner/biac3/wagner5/alan/MEG/scripts/MEGPilotAnalysis'));
 addpath('/biac4/wagner/biac3/wagner5/alan/toolboxes/fieldtrip-20130809');

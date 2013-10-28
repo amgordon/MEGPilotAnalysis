@@ -1,7 +1,5 @@
 function [results, idx] = MEG_classifyFreq(par)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-
+% classify MEG data based on spectral properties.  
 
 ft_defaults
 

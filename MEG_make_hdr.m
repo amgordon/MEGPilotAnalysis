@@ -1,6 +1,5 @@
 function [hdr] = MEG_make_hdr(par)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+% read and save a hdr for a data file.
 
 hdr = ft_read_header(par.dataFiles{1});
 

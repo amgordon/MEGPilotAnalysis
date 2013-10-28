@@ -1,15 +1,9 @@
 function [ output_args ] = MEG_preprocess_acrossRun2(par, flags)
-
-%% MEG sample data preprocessing
+%
 %   Preprocess MEG using mainly fieldtrip routines
 %   Alan Gordon, Stanford University, 09/02/2013
 %   Adapted from scripts by Andy Heusser, NYU
 
-if (nargin<2)
-    flags = 'tami';
-end
-
-%concatData = load(par.dataConcat);
 
 ft_defaults
 
